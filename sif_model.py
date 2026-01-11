@@ -159,18 +159,18 @@ def run_simulation():
     plt.close()
     print(f"Saved Figure 2 to {fig2_path}")
 
-    # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
-    # Extended to show where each curve crosses zero (if at all)
-    # σ=20% crosses at δ≈2.76; σ=15% and σ=10% never cross (always negative)
-    # Display range: δ ∈ [0.001, 4.0] to clearly show the sole crossing
-    delta3 = np.linspace(0.001, 4.0, 400)
+    # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=4%
+    # Changed rate from 5% to 4% to show all three volatility curves crossing
+    # σ=20% crosses at δ≈1.54, σ=15% at δ≈17.86, σ=10% never crosses
+    # Display range: δ ∈ [0.001, 20] to show both crossings clearly
+    delta3 = np.linspace(0.001, 20, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}
     labels = ['σ=20%', 'σ=15%', 'σ=10%']
     colors = ['green', 'blue', 'red']
     for sigma, color, label in zip(sigmas, colors, labels):
-        sst_v = calculate_sst(delta3, r=0.05, sigma=sigma, use_exact=True)
+        sst_v = calculate_sst(delta3, r=0.04, sigma=sigma, use_exact=True)
         series_v[label] = sst_v
         plt.plot(delta3, sst_v, label=label, color=color, linewidth=2, linestyle='-' if sigma==0.20 else '--')
 
