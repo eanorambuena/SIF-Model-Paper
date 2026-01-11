@@ -178,11 +178,11 @@ def run_simulation():
     plt.title('Figure 3: Sensitivity to Volatility (Convexity)')
     plt.xlabel('Displacement δ')
     plt.ylabel('SST (Years)')
-    # Autoscale with 10% margins
+    # Autoscale with 5% margins
     y_vals_v = [series_v[k] for k in series_v]
     y_min_v = min([v.min() for v in y_vals_v])
     y_max_v = max([v.max() for v in y_vals_v])
-    y_margin_v = (y_max_v - y_min_v) * 0.1
+    y_margin_v = (y_max_v - y_min_v) * 0.05
     plt.ylim(y_min_v - y_margin_v, y_max_v + y_margin_v)
     plt.xlim(delta3.min(), delta3.max())
     plt.legend()
