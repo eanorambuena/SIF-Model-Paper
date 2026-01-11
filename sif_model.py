@@ -103,8 +103,9 @@ def run_simulation():
     print(f"Saved Figure 1 to {fig1_path}")
 
     # Figure 2: Sensitivity to Rates (r = 2%, 5%, 10%), sigma=20%
-    # Extended to show all zero crossings: r=2% crosses at δ≈0.46, r=5% at δ≈2.76
-    delta2 = np.linspace(0.001, 3.2, 400)
+    # Extended to show all zero crossings: r=2% at δ≈0.43, r=5% at δ≈2.3, r=10% at δ≈704
+    # Capped at δ=700 to avoid numerical overflow beyond that range
+    delta2 = np.linspace(0.001, 700, 400)
     rates = [0.02, 0.05, 0.10]
     plt.figure(figsize=(8, 5))
     series = {}
