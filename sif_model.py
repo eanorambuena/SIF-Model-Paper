@@ -87,8 +87,11 @@ def run_simulation():
     plt.title('Figure 1: SST Comparison (Volatility Buys Time)')
     plt.xlabel('Displacement δ (Log-Moneyness)')
     plt.ylabel('SST (Years)')
-    plt.xlim(0, 1)
-    plt.ylim(-5, 20)
+    # Autoscale with 10% margins
+    y_min, y_max = min(sst_std.min(), sst_high.min()), max(sst_std.max(), sst_high.max())
+    y_margin = (y_max - y_min) * 0.1
+    plt.ylim(y_min - y_margin, y_max + y_margin)
+    plt.xlim(delta1.min(), delta1.max())
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -115,8 +118,13 @@ def run_simulation():
     plt.title('Figure 2: Sensitivity to Rates (Duration)')
     plt.xlabel('Displacement δ')
     plt.ylabel('SST (Years)')
-    plt.xlim(0, 4)
-    plt.ylim(-2, 25)
+    # Autoscale with 10% margins
+    y_vals = [series[k] for k in series]
+    y_min = min([v.min() for v in y_vals])
+    y_max = max([v.max() for v in y_vals])
+    y_margin = (y_max - y_min) * 0.1
+    plt.ylim(y_min - y_margin, y_max + y_margin)
+    plt.xlim(delta2.min(), delta2.max())
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -144,8 +152,13 @@ def run_simulation():
     plt.title('Figure 3: Sensitivity to Volatility (Convexity)')
     plt.xlabel('Displacement δ')
     plt.ylabel('SST (Years)')
-    plt.xlim(0, 4.5)
-    plt.ylim(-13, 30)
+    # Autoscale with 10% margins
+    y_vals_v = [series_v[k] for k in series_v]
+    y_min_v = min([v.min() for v in y_vals_v])
+    y_max_v = max([v.max() for v in y_vals_v])
+    y_margin_v = (y_max_v - y_min_v) * 0.1
+    plt.ylim(y_min_v - y_margin_v, y_max_v + y_margin_v)
+    plt.xlim(delta3.min(), delta3.max())
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
