@@ -162,8 +162,8 @@ def run_simulation():
     # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=4%
     # Changed rate from 5% to 4% to show all three volatility curves crossing
     # σ=20% crosses at δ≈1.54, σ=15% at δ≈17.86, σ=10% never crosses
-    # Display range: δ ∈ [0.001, 30] to show both crossings clearly with extra room
-    delta3 = np.linspace(0.001, 20, 400)
+    # Display range: δ ∈ [0.001, 25] to show both crossings clearly with extra room
+    delta3 = np.linspace(0.001, 25, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}
