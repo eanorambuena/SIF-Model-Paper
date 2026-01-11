@@ -54,8 +54,8 @@ The interaction of these terms determines the <strong>Strategic Shielding Time (
 <h2>📂 Repository Contents</h2>
 
 <ul>
-  <li><strong><code>Quant_Whitepaper.pdf</code></strong>: The complete technical paper explaining the derivation, proofs, and scenario analysis (Hawk vs. Panic regimes).</li>
-  <li><strong><code>sif_model.py</code></strong>: Python reference implementation. It replicates the figures found in the paper, simulating the SST collapse and calculating the Greeks (ρ<sub>sif</sub>, ν<sub>sif</sub>).</li>
+  <li><a href="SIF_Whitepaper.pdf">SIF_Whitepaper.pdf</a>: The complete technical paper explaining the derivation, proofs, and scenario analysis (Hawk vs. Panic regimes).</li>
+  <li><a href="sif_model.py">sif_model.py</a>: Python reference implementation. It replicates the figures found in the paper, simulating the SST collapse and calculating the Greeks (ρ<sub>sif</sub>, ν<sub>sif</sub>).</li>
 </ul>
 
 <h2>🚀 Quick Start</h2>
@@ -63,10 +63,10 @@ The interaction of these terms determines the <strong>Strategic Shielding Time (
 <p>To run the simulation and generate the sensitivity graphs, execute the following commands in your terminal:</p>
 
 <pre><code># Clone the repository
-git clone https://github.com/YOUR_USERNAME/SIF-Model.git
+git clone https://github.com/eanorambuena/SIF-Model-Paper.git
 
 # Navigate to the directory
-cd SIF-Model
+cd SIF-Model-Paper
 
 # Run the model
 python sif_model.py
