@@ -19,22 +19,38 @@ def calculate_ec_exact(delta):
     Calculates the exact Exigence Coefficient (EC) based on the Reflection Principle.
     Formula: EC(delta) = |Phi^-1( 1 / (2 * exp(delta)) )|
     
-    Implementation uses log-space for numerical stability:
-    1/(2·e^δ) = e^(-(δ + log(2)))
-    This avoids overflow for large delta values (up to δ ≈ 1,000,000).
+    Hybrid implementation for numerical stability:
+    - For delta < 700: Uses exact log-space probit: EC = |Phi^-1(exp(-(delta + log(2))))|
+    - For delta >= 700: Uses asymptotic approximation: EC ≈ sqrt(2·delta)
+      (Error < 0.3% even at transition point)
     """
     # Avoid division by zero or log domain errors for delta=0 using a small epsilon
     delta = np.maximum(delta, 1e-9)
     
-    # Hit probability decay: P = 1 / (2 * e^delta)
-    # Computed in log-space to avoid overflow: P = exp(-(delta + log(2)))
-    # Both forms are mathematically equivalent, but log-space is numerically stable
+    # Threshold for switching from exact to asymptotic
+    EXACT_THRESHOLD = 700.0
+    
+    # Exact calculation (valid for delta < 700)
     log_prob = -(delta + np.log(2))
     prob_hit = np.exp(log_prob)
     
-    # Probit function (Inverse Normal CDF)
-    # We take absolute value because we need the distance in std devs
-    ec = np.abs(norm.ppf(prob_hit))
+    # For small delta, use exact probit; for large delta, use asymptotic
+    # Create output array
+    ec = np.zeros_like(delta, dtype=float)
+    
+    # Where delta < threshold: use exact probit
+    exact_mask = (delta < EXACT_THRESHOLD)
+    if np.any(exact_mask):
+        ec[exact_mask] = np.abs(norm.ppf(prob_hit[exact_mask] if isinstance(prob_hit, np.ndarray) else prob_hit))
+    
+    # Where delta >= threshold: use asymptotic approximation EC ≈ sqrt(2·delta)
+    asymp_mask = (delta >= EXACT_THRESHOLD)
+    if np.any(asymp_mask):
+        ec[asymp_mask] = np.sqrt(2 * (delta[asymp_mask] if isinstance(delta, np.ndarray) else delta))
+    
+    # Handle scalar input
+    if np.isscalar(delta):
+        return float(ec) if isinstance(ec, np.ndarray) else ec
     
     return ec
 
@@ -144,10 +160,9 @@ def run_simulation():
     print(f"Saved Figure 2 to {fig2_path}")
 
     # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
-    # Extended to δ=1200 with log-space stable implementation
+    # Extended to δ=2000 with hybrid exact+asymptotic EC calculation
     # σ=20% crosses at δ≈2.3, σ=15% at δ≈702, σ=10% at δ≈712
-    # Previously limited to δ≤700 due to exp() overflow; now stable with log-space
-    delta3 = np.linspace(0.001, 1200, 400)
+    delta3 = np.linspace(0.001, 2000, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}

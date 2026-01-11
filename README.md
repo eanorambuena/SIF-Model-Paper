@@ -132,17 +132,57 @@ python sif_model.py
   <li><strong>Route 2 (stable):</strong> Add negative numbers (−δ − ln 2), then take e<sup>...</sup> → ALWAYS SAFE</li>
 </ul>
 
+<h4>Solution: Hybrid Exact + Asymptotic</h4>
+
+<p>To overcome underflow while maintaining accuracy, the implementation uses a <strong>hybrid approach</strong>:</p>
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <tr>
+    <th>Range</th>
+    <th>Method</th>
+    <th>Formula</th>
+    <th>Accuracy</th>
+  </tr>
+  <tr>
+    <td><strong>δ < 700</strong></td>
+    <td>Exact Probit</td>
+    <td>EC = |Φ<sup>-1</sup>(e<sup>−(δ + ln 2)</sup>)|</td>
+    <td>Machine precision</td>
+  </tr>
+  <tr>
+    <td><strong>δ ≥ 700</strong></td>
+    <td>Asymptotic</td>
+    <td>EC ≈ √(2·δ)</td>
+    <td>Error < 0.3%</td>
+  </tr>
+</table>
+
+<h4>Why Asymptotic Works</h4>
+
+<p>For very small probabilities p, the inverse-probit function has a known asymptotic expansion:</p>
+
+<p align="center">
+  <strong>Φ<sup>-1</sup>(p) ≈ −√(2·ln(1/p))</strong>
+</p>
+
+<p>When p = e<sup>−(δ + ln 2)</sup>, this becomes:</p>
+
+<p align="center">
+  <strong>EC(δ) ≈ √(2·(δ + ln 2)) ≈ √(2·δ)</strong>
+</p>
+
+<p>(The ln(2) term becomes negligible for δ >> 1.)</p>
+
 <h4>Impact</h4>
 
-<p>With this fix:</p>
-
 <ul>
-  <li><strong>Figure 3</strong> now extends to δ = 1200 and shows all three volatility curves crossing zero continuously and correctly.</li>
-  <li>No artificial limitations from floating-point arithmetic.</li>
-  <li>Complete parameter exploration for analysis of extreme volatility regimes.</li>
+  <li><strong>Figure 3</strong> now extends to δ = 2000 without discontinuities, showing all curves smoothly through their zero crossings and beyond.</li>
+  <li><strong>No new dependencies:</strong> Uses only NumPy, no mpmath or external libraries required.</li>
+  <li><strong>Computational cost:</strong> Negligible; asymptotic branch is faster than probit.</li>
+  <li><strong>Accuracy:</strong> Exact where possible, < 0.3% error in asymptotic regime.</li>
 </ul>
 
-<p><strong>Example:</strong> σ=10% crosses zero at δ ≈ 712, which is now computed correctly without discontinuities.</p>
+<p><strong>Example:</strong> σ=10% now visibly crosses zero at δ ≈ 712 and continues smoothly up to δ = 2000, demonstrating the model's behavior across a wide range of displacement values.</p>
 
 <!-- Examples were used during development to compare formula variants. These example artifacts are not committed to the canonical history. Generate comparison outputs locally with the scripts in `scripts/` or by running `python sif_model.py`. -->
 
