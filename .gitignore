@@ -1,0 +1,28 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Test / tool caches
+.pytest_cache/
+pip-selfcheck.json
+
+# IDEs / editors
+.vscode/
+.idea/
+
+# Generated outputs
+figures/
+
+# Environment variables
+.env

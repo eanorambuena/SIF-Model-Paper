@@ -9,6 +9,7 @@ using the Reflection Principle of Brownian Motion.
 Dependencies: numpy, scipy, matplotlib
 """
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
@@ -61,6 +62,9 @@ def calculate_sst(delta, r, sigma, use_exact=True):
 # --- SIMULATION & PLOTTING ---
 
 def run_simulation():
+    output_dir = "figures"
+    os.makedirs(output_dir, exist_ok=True)
+
     # Grid for Log-Moneyness (Displacement)
     delta = np.linspace(0.01, 5, 200)
 
@@ -81,11 +85,15 @@ def run_simulation():
     plt.ylabel('SST (Years)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.ylim(-5, 20)
+    plt.tight_layout()
+    # autoscale y-axis to avoid clipping extreme values
+    plt.autoscale(enable=True, axis='y')
     
-    # Save or Show
-    print("Generating Figure 1...")
-    # plt.show() # Uncomment to view
+    # Save to file
+    fig1_path = os.path.join(output_dir, "figure1.png")
+    plt.savefig(fig1_path, bbox_inches='tight')
+    plt.close()
+    print(f"Saved Figure 1 to {fig1_path}")
 
     # 2. Figure 2 Reproduction: Sensitivity to Rates (Rho)
     plt.figure(figsize=(10, 6))
@@ -104,8 +112,14 @@ def run_simulation():
     plt.ylabel('SST (Years)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.ylim(-5, 20)
-    print("Generating Figure 2...")
+    plt.tight_layout()
+    # autoscale y-axis to avoid clipping extreme values
+    plt.autoscale(enable=True, axis='y')
+
+    fig2_path = os.path.join(output_dir, "figure2.png")
+    plt.savefig(fig2_path, bbox_inches='tight')
+    plt.close()
+    print(f"Saved Figure 2 to {fig2_path}")
 
 if __name__ == "__main__":
     run_simulation()
