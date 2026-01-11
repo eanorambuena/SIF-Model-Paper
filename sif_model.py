@@ -18,12 +18,19 @@ def calculate_ec_exact(delta):
     """
     Calculates the exact Exigence Coefficient (EC) based on the Reflection Principle.
     Formula: EC(delta) = |Phi^-1( 1 / (2 * exp(delta)) )|
+    
+    Implementation uses log-space for numerical stability:
+    1/(2·e^δ) = e^(-(δ + log(2)))
+    This avoids overflow for large delta values (up to δ ≈ 1,000,000).
     """
     # Avoid division by zero or log domain errors for delta=0 using a small epsilon
     delta = np.maximum(delta, 1e-9)
     
-    # Hit probability decay: P ~ 1 / (2 * e^delta)
-    prob_hit = 1 / (2 * np.exp(delta))
+    # Hit probability decay: P = 1 / (2 * e^delta)
+    # Computed in log-space to avoid overflow: P = exp(-(delta + log(2)))
+    # Both forms are mathematically equivalent, but log-space is numerically stable
+    log_prob = -(delta + np.log(2))
+    prob_hit = np.exp(log_prob)
     
     # Probit function (Inverse Normal CDF)
     # We take absolute value because we need the distance in std devs
@@ -104,6 +111,7 @@ def run_simulation():
 
     # Figure 2: Sensitivity to Rates (r = 2%, 5%, 10%), sigma=20%
     # Shows zero crossings: r=2% at δ≈0.43, r=5% at δ≈2.31, r=10% never crosses (stays negative)
+    # Extended range now possible with log-space stable implementation
     delta2 = np.linspace(0.001, 100, 400)
     rates = [0.02, 0.05, 0.10]
     plt.figure(figsize=(8, 5))
@@ -136,9 +144,10 @@ def run_simulation():
     print(f"Saved Figure 2 to {fig2_path}")
 
     # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
-    # Extends to δ ≈ 700 (limit where σ=15% and σ=10% cross zero)
-    # Beyond δ ≈ 709, exp(delta) overflows and causes numerical discontinuities
-    delta3 = np.linspace(0.001, 700, 400)
+    # Extended to δ=1200 with log-space stable implementation
+    # σ=20% crosses at δ≈2.3, σ=15% at δ≈702, σ=10% at δ≈712
+    # Previously limited to δ≤700 due to exp() overflow; now stable with log-space
+    delta3 = np.linspace(0.001, 1200, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}

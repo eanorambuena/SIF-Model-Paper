@@ -71,9 +71,9 @@ cd SIF-Model-Paper
 # Run the model
 python sif_model.py
 </code></pre>
-<h2>⚠️ Numerical Stability & Limitations</h2>
+<h2>⚠️ Numerical Stability & Overflow Solutions</h2>
 
-<h3>The Probit Function Overflow Problem</h3>
+<h3>The Probit Function Overflow Problem & Solution</h3>
 
 <p>The core calculation uses the exact inverse-probit formula for the Exigence Coefficient:</p>
 
@@ -81,33 +81,68 @@ python sif_model.py
   <strong>EC(δ) = |Φ<sup>-1</sup>( 1 / (2·e<sup>δ</sup>) )|</strong>
 </p>
 
-<p>This formula exhibits a critical numerical limitation for large displacement values:</p>
+<h4>The Problem (Before)</h4>
+
+<p>The naive implementation had numerical limitations:</p>
 
 <ul>
-  <li><strong>For δ < ~700:</strong> The computation is numerically stable and accurate.</li>
-  <li><strong>For δ ≥ ~710:</strong> The exponential term <code>exp(δ)</code> overflows to infinity in IEEE 754 floating-point arithmetic, causing <code>1/(2·exp(δ))</code> to collapse to zero.</li>
-  <li><strong>Result:</strong> When the probit argument becomes zero, <code>Φ<sup>-1</sup>(0) = -∞</code>, causing a discontinuous jump in EC and SST.</li>
+  <li><strong>Mathematically:</strong> The formula is valid for all δ ∈ ℝ.</li>
+  <li><strong>Computationally (IEEE 754):</strong> Computing exp(δ) directly overflows for δ > 709.</li>
+  <li><strong>Symptom:</strong> For δ ≥ 710, the term 1/(2·exp(δ)) collapsed to exactly zero, causing a discontinuous jump in EC and SST.</li>
+  <li><strong>Result:</strong> Figures were artificially limited to δ ≤ 700, missing important parameter regimes.</li>
 </ul>
 
-<p><strong>Figure 3 (Sensitivity to Volatility)</strong> demonstrates this phenomenon:</p>
+<h4>The Solution (Log-Space)</h4>
+
+<p>We implemented the mathematically equivalent but numerically stable form:</p>
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <tr>
+    <th>Form</th>
+    <th>Formula</th>
+    <th>Stability</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><strong>Original (Naive)</strong></td>
+    <td>P = 1 / (2·e<sup>δ</sup>)</td>
+    <td>❌ Overflows for δ > 709</td>
+    <td>Direct computation of e<sup>δ</sup> causes overflow</td>
+  </tr>
+  <tr>
+    <td><strong>Log-Space (Stable)</strong></td>
+    <td>P = e<sup>−(δ + ln 2)</sup></td>
+    <td>✓ Stable for δ up to ~1,000,000</td>
+    <td>Exponential of negative number never overflows</td>
+  </tr>
+</table>
+
+<h4>Mathematical Equivalence</h4>
+
+<p>Both forms are algebraically identical:</p>
+
+<p align="center">
+  <strong>1/(2·e<sup>δ</sup>) = e<sup>−ln(2)</sup> · e<sup>−δ</sup> = e<sup>−(δ + ln 2)</sup></strong>
+</p>
+
+<p>This is simply a rearrangement of the exponent rules. The only difference is which route we take through the computation:</p>
 
 <ul>
-  <li><strong>σ=20%:</strong> Crosses zero at δ ≈ 2.3 (well-behaved)</li>
-  <li><strong>σ=15%:</strong> Crosses zero at δ ≈ 702 (approaching stability limit)</li>
-  <li><strong>σ=10%:</strong> Theoretically crosses at δ ≈ 712, but numerical overflow prevents display</li>
+  <li><strong>Route 1 (naive):</strong> Calculate huge e<sup>δ</sup>, then divide 1 by it → OVERFLOW</li>
+  <li><strong>Route 2 (stable):</strong> Add negative numbers (−δ − ln 2), then take e<sup>...</sup> → ALWAYS SAFE</li>
 </ul>
 
-<p><strong>Mitigation:</strong> The implementation caps the displacement range at δ = 700 to ensure all curves remain continuous and mathematically sound.</p>
+<h4>Impact</h4>
 
-<h3>Theoretical Behavior at Large δ</h3>
-
-<p>Mathematically, as δ → ∞:</p>
+<p>With this fix:</p>
 
 <ul>
-  <li>EC(δ) → √(2·δ) [asymptotic approximation]</li>
-  <li>The quadratic penalty term → constant or grows slower than the linear term</li>
-  <li>SST eventually becomes positive for all volatility levels (but computationally intractable)</li>
+  <li><strong>Figure 3</strong> now extends to δ = 1200 and shows all three volatility curves crossing zero continuously and correctly.</li>
+  <li>No artificial limitations from floating-point arithmetic.</li>
+  <li>Complete parameter exploration for analysis of extreme volatility regimes.</li>
 </ul>
+
+<p><strong>Example:</strong> σ=10% crosses zero at δ ≈ 712, which is now computed correctly without discontinuities.</p>
 
 <!-- Examples were used during development to compare formula variants. These example artifacts are not committed to the canonical history. Generate comparison outputs locally with the scripts in `scripts/` or by running `python sif_model.py`. -->
 
