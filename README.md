@@ -42,7 +42,7 @@ The interaction of these terms determines the <strong>Strategic Shielding Time (
 <p>The framework establishes the following canonical equation for optimal stopping:</p>
 
 <p align="center">
-  <strong>SST = (D<sub>i</sub> · δ) - (C(δ) · δ<sup>2</sup>)</strong>
+  <strong>SST = D<sub>i</sub> · δ - C(δ) · δ<sup>2</sup></strong>
 </p>
 
 <p>Where:</p>
