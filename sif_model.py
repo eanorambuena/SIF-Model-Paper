@@ -160,9 +160,10 @@ def run_simulation():
     print(f"Saved Figure 2 to {fig2_path}")
 
     # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
-    # Extended to δ=2000 with hybrid exact+asymptotic EC calculation
-    # σ=20% crosses at δ≈2.3, σ=15% at δ≈702, σ=10% at δ≈712
-    delta3 = np.linspace(0.001, 2000, 400)
+    # Extended to show where each curve crosses zero (if at all)
+    # σ=20% crosses at δ≈2.76; σ=15% and σ=10% never cross (always negative)
+    # Display range: δ ∈ [0.001, 4.0] to clearly show the sole crossing
+    delta3 = np.linspace(0.001, 4.0, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}
