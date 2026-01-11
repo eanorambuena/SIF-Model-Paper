@@ -74,7 +74,7 @@ def run_simulation():
     os.makedirs(output_dir, exist_ok=True)
 
     # Figure 1: SST Comparison (Standard vs High Vol) — use EXACT EC
-    delta1 = np.linspace(0.001, 1.0, 400)
+    delta1 = np.linspace(0.001, 3.5, 400)
     sst_std = calculate_sst(delta1, r=0.05, sigma=0.20, use_exact=True)
     sst_high = calculate_sst(delta1, r=0.05, sigma=0.50, use_exact=True)
 
