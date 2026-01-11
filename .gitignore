@@ -23,6 +23,7 @@ pip-selfcheck.json
 
 # Generated outputs
 figures/
+!figures/*.png
 
 # Environment variables
 .env
