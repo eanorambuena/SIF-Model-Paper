@@ -41,13 +41,11 @@ def calculate_ec_robust(delta):
 def calculate_sst(delta, r, sigma, use_exact=True):
     """
     Calculates Strategic Shielding Time (SST).
-    SST = (Linear Funding Time) - (Quadratic Volatility Penalty)
-    SST = (delta / r) - [ delta / (sigma * EC) ]^2
+    Formula: SST = (delta / r) - [ delta / (sigma * EC) ]^2
+    where EC(delta) = |Phi^-1(1 / (2 * exp(delta)))|  [EXACT, from Reflection Principle]
     """
-    if use_exact:
-        ec = calculate_ec_exact(delta)
-    else:
-        ec = calculate_ec_robust(delta)
+    # Always use exact EC (inverse-probit)
+    ec = calculate_ec_exact(delta)
     
     # Intrinsic Duration (Linear Benefit)
     funding_time = delta / r
@@ -75,7 +73,7 @@ def run_simulation():
     output_dir = "figures"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Figure 1: SST Comparison (Standard vs High Vol) — use exact EC
+    # Figure 1: SST Comparison (Standard vs High Vol) — use EXACT EC
     delta1 = np.linspace(0.001, 1.0, 400)
     sst_std = calculate_sst(delta1, r=0.05, sigma=0.20, use_exact=True)
     sst_high = calculate_sst(delta1, r=0.05, sigma=0.50, use_exact=True)
