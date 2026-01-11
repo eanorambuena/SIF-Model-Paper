@@ -72,6 +72,10 @@ cd SIF-Model-Paper
 python sif_model.py
 </code></pre>
 
+
+<!-- Examples were used during development to compare formula variants. These example artifacts are not committed to the canonical history. Generate comparison outputs locally with the scripts in `scripts/` or by running `python sif_model.py`. -->
+
+
 <h2>⚖️ License & Legal Warning</h2>
 
 <p><strong>Copyright © 2026 Emmanuel Normabuena. All Rights Reserved.</strong></p>
