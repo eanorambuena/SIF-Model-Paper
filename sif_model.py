@@ -172,7 +172,7 @@ def run_simulation():
     for sigma, color, label in zip(sigmas, colors, labels):
         sst_v = calculate_sst(delta3, r=0.04, sigma=sigma, use_exact=True)
         series_v[label] = sst_v
-        plt.plot(delta3, sst_v, label=label, color=color, linewidth=2, linestyle='-' if sigma==0.20 else '--')
+        plt.plot(delta3, sst_v, label=label, color=color, linewidth=2)
 
     plt.axhline(0, color='black', linestyle=':', linewidth=1)
     plt.title('Figure 3: Sensitivity to Volatility (Convexity)')
