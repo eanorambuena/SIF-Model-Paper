@@ -75,91 +75,87 @@ def run_simulation():
     output_dir = "figures"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Grid for Log-Moneyness (Displacement)
-    delta = np.linspace(0.01, 5, 200)
+    # Figure 1: SST Comparison (Standard vs High Vol) — use exact EC
+    delta1 = np.linspace(0.001, 1.0, 400)
+    sst_std = calculate_sst(delta1, r=0.05, sigma=0.20, use_exact=True)
+    sst_high = calculate_sst(delta1, r=0.05, sigma=0.50, use_exact=True)
 
-    # 1. Figure 1 Reproduction: Standard vs High Vol (USING EXACT EC)
-    plt.figure(figsize=(10, 6))
-    
-    # Standard Asset (r=5%, sigma=20%) - exact EC
-    sst_std_exact = calculate_sst(delta, r=0.05, sigma=0.20, use_exact=True)
-    plt.plot(delta, sst_std_exact, label='Standard (σ=20%) - exact', color='blue', linewidth=2)
-    
-    # High Vol Asset (r=5%, sigma=50%) - exact EC
-    sst_vol_exact = calculate_sst(delta, r=0.05, sigma=0.50, use_exact=True)
-    plt.plot(delta, sst_vol_exact, label='High Vol (σ=50%) - exact', color='red', linestyle='--', linewidth=2)
-    
-    # Also compute approximations for numeric comparison (not plotted)
-    sst_std_approx = calculate_sst(delta, r=0.05, sigma=0.20, use_exact=False)
-    sst_vol_approx = calculate_sst(delta, r=0.05, sigma=0.50, use_exact=False)
-    
-    # Numeric comparison stats
-    def _print_stats(name, exact, approx):
-        diff = np.abs(exact - approx)
-        print(f"{name} - approx vs exact: max_abs_diff={diff.max():.6f}, mean_abs_diff={diff.mean():.6f}")
-    _print_stats('Standard (σ=20%)', sst_std_exact, sst_std_approx)
-    _print_stats('High Vol (σ=50%)', sst_vol_exact, sst_vol_approx)
-    
-    # Save data for reproducibility
-    save_series_csv(os.path.join(output_dir, 'data_figure1_exact.csv'), delta, {'standard_exact': sst_std_exact, 'highvol_exact': sst_vol_exact})
-    save_series_csv(os.path.join(output_dir, 'data_figure1_approx.csv'), delta, {'standard_approx': sst_std_approx, 'highvol_approx': sst_vol_approx})
-    
+    plt.figure(figsize=(8, 5))
+    plt.plot(delta1, sst_std, label='Standard (σ=20%)', color='blue', linewidth=2)
+    plt.plot(delta1, sst_high, label='High Vol (σ=50%)', color='red', linestyle='--', linewidth=2)
     plt.axhline(0, color='black', linestyle=':', linewidth=1)
-    plt.title('Figure 1: SST Comparison (Volatility Buys Time) - exact EC')
+    plt.title('Figure 1: SST Comparison (Volatility Buys Time)')
     plt.xlabel('Displacement δ (Log-Moneyness)')
     plt.ylabel('SST (Years)')
+    plt.xlim(0, 1)
+    plt.ylim(-5, 20)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    # autoscale y-axis to avoid clipping extreme values
-    plt.autoscale(enable=True, axis='y')
-    
-    # Save to file
-    fig1_path = os.path.join(output_dir, "figure1_exact.png")
-    plt.savefig(fig1_path, bbox_inches='tight')
+
+    # Save data and figure
+    save_series_csv(os.path.join(output_dir, 'data_figure1_paper.csv'), delta1, {'standard': sst_std, 'highvol': sst_high})
+    fig1_path = os.path.join(output_dir, 'figure1_paper.png')
+    plt.savefig(fig1_path, dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir, 'figure1_paper.pdf'), bbox_inches='tight')
     plt.close()
-    print(f"Saved Figure 1 (exact EC) to {fig1_path}")
+    print(f"Saved Figure 1 to {fig1_path}")
 
-    # 2. Figure 2 Reproduction: Sensitivity to Rates (Rho)
-    plt.figure(figsize=(10, 6))
-    
+    # Figure 2: Sensitivity to Rates (r = 2%, 5%, 10%), sigma=20%
+    delta2 = np.linspace(0.001, 4.0, 400)
     rates = [0.02, 0.05, 0.10]
-    colors = ['green', 'blue', 'red']
-    labels = ['r=2% (Patient)', 'r=5% (Base)', 'r=10% (Strict)']
-    
-    series_exact = {}
-    series_approx = {}
-    for r_val, col, lab in zip(rates, colors, labels):
-        sst_exact = calculate_sst(delta, r=r_val, sigma=0.20, use_exact=True)
-        plt.plot(delta, sst_exact, label=lab, color=col, linewidth=2)
-        series_exact[lab] = sst_exact
-        # approximation for comparison
-        sst_approx = calculate_sst(delta, r=r_val, sigma=0.20, use_exact=False)
-        series_approx[lab] = sst_approx
-
-    # Numeric comparison stats for each rate
-    for lab in labels:
-        diff = np.abs(series_exact[lab] - series_approx[lab])
-        print(f"{lab} - approx vs exact: max_abs_diff={diff.max():.6f}, mean_abs_diff={diff.mean():.6f}")
-
-    # Save CSVs for reproducibility
-    save_series_csv(os.path.join(output_dir, 'data_figure2_exact.csv'), delta, {k:series_exact[k] for k in series_exact})
-    save_series_csv(os.path.join(output_dir, 'data_figure2_approx.csv'), delta, {k:series_approx[k] for k in series_approx})
+    plt.figure(figsize=(8, 5))
+    series = {}
+    for r_val, color, label in zip(rates, ['green', 'blue', 'red'], ['r=2% (Patient)', 'r=5% (Base)', 'r=10% (Strict)']):
+        sst_r = calculate_sst(delta2, r=r_val, sigma=0.20, use_exact=True)
+        series[label] = sst_r
+        plt.plot(delta2, sst_r, label=label, color=color, linewidth=2)
 
     plt.axhline(0, color='black', linestyle=':', linewidth=1)
-    plt.title('Figure 2: Sensitivity to Rates (Rho Risk) - exact EC')
+    plt.title('Figure 2: Sensitivity to Rates (Duration)')
     plt.xlabel('Displacement δ')
     plt.ylabel('SST (Years)')
+    plt.xlim(0, 4)
+    plt.ylim(-2, 25)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    # autoscale y-axis to avoid clipping extreme values
-    plt.autoscale(enable=True, axis='y')
 
-    fig2_path = os.path.join(output_dir, "figure2_exact.png")
-    plt.savefig(fig2_path, bbox_inches='tight')
+    save_series_csv(os.path.join(output_dir, 'data_figure2_paper.csv'), delta2, series)
+    fig2_path = os.path.join(output_dir, 'figure2_paper.png')
+    plt.savefig(fig2_path, dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir, 'figure2_paper.pdf'), bbox_inches='tight')
     plt.close()
-    print(f"Saved Figure 2 (exact EC) to {fig2_path}")
+    print(f"Saved Figure 2 to {fig2_path}")
+
+    # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
+    delta3 = np.linspace(0.001, 4.5, 400)
+    sigmas = [0.20, 0.15, 0.10]
+    plt.figure(figsize=(8, 5))
+    series_v = {}
+    labels = ['σ=20%', 'σ=15%', 'σ=10%']
+    colors = ['green', 'blue', 'red']
+    for sigma, color, label in zip(sigmas, colors, labels):
+        sst_v = calculate_sst(delta3, r=0.05, sigma=sigma, use_exact=True)
+        series_v[label] = sst_v
+        plt.plot(delta3, sst_v, label=label, color=color, linewidth=2, linestyle='-' if sigma==0.20 else '--')
+
+    plt.axhline(0, color='black', linestyle=':', linewidth=1)
+    plt.title('Figure 3: Sensitivity to Volatility (Convexity)')
+    plt.xlabel('Displacement δ')
+    plt.ylabel('SST (Years)')
+    plt.xlim(0, 4.5)
+    plt.ylim(-13, 30)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    save_series_csv(os.path.join(output_dir, 'data_figure3_paper.csv'), delta3, series_v)
+    fig3_path = os.path.join(output_dir, 'figure3_paper.png')
+    plt.savefig(fig3_path, dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir, 'figure3_paper.pdf'), bbox_inches='tight')
+    plt.close()
+    print(f"Saved Figure 3 to {fig3_path}")
 
 if __name__ == "__main__":
     run_simulation()
