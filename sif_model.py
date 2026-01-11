@@ -136,8 +136,8 @@ def run_simulation():
     print(f"Saved Figure 2 to {fig2_path}")
 
     # Figure 3: Sensitivity to Volatility (σ = 20%, 15%, 10%), r=5%
-    # Extended to show where σ=20% crosses zero at delta ≈ 2.76
-    delta3 = np.linspace(0.001, 3.2, 400)
+    # Extended to show all zero crossings: σ=20% at δ≈2.3, σ=15% at δ≈702, σ=10% at δ≈712
+    delta3 = np.linspace(0.001, 820, 400)
     sigmas = [0.20, 0.15, 0.10]
     plt.figure(figsize=(8, 5))
     series_v = {}
